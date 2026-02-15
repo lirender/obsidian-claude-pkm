@@ -54,16 +54,39 @@ Your daily template can use:
 ### Automated Steps
 1. Create today's daily note (if not exists)
 2. Pull incomplete tasks from yesterday
-3. Review weekly goals for today's priority
-4. Surface any calendar events or deadlines
+3. Read this week's ONE Big Thing from `Goals/3. Weekly Review.md`
+4. Surface active project next-actions from `Projects/*/CLAUDE.md`
+5. Review weekly goals for today's priority
+
+### Cascade Context Surfacing
+Before interactive prompts, automatically surface:
+- **ONE Big Thing** from most recent weekly review
+- **Active project next-actions** from `Projects/*/CLAUDE.md` (read "Next Actions" section)
+- **Monthly priority** from `Goals/2. Monthly Goals.md`
+
+Display as a brief context block at the top of the morning routine:
+```markdown
+### Today's Context
+- **Week's ONE Big Thing:** [from weekly review]
+- **Active Projects:** [project names with first next-action each]
+- **Monthly Focus:** [from monthly goals]
+```
 
 ### Interactive Prompts
 - "What's your ONE thing for today?"
 - "What might get in the way?"
 - "How do you want to feel at end of day?"
 
+### Task Creation Guidance
+When adding tasks to the daily note, recommend linking to goals/projects:
+```markdown
+- [ ] Draft API spec — Supports: [[Projects/MyApp]]
+- [ ] Review chapter 3 — Supports: [[1. Yearly Goals#Read 12 books]]
+```
+
 ### Morning Checklist
 - [ ] Daily note created
+- [ ] Cascade context reviewed (ONE Big Thing, projects, monthly focus)
 - [ ] Yesterday's incomplete tasks reviewed
 - [ ] ONE priority identified
 - [ ] Time blocks set
@@ -95,6 +118,15 @@ Your daily template can use:
 2. Add notes and learnings
 3. Log energy levels (1-10)
 4. Record gratitude items
+
+### Goal & Project Attention Summary
+Automatically generate an end-of-day summary showing which goals and projects received attention:
+```markdown
+### Today's Cascade Impact
+- **Goals touched:** [[Goal 1]] (2 tasks), [[Goal 3]] (1 task)
+- **Projects advanced:** [[ProjectA]] (3 tasks), [[ProjectB]] (1 task)
+- **Unlinked tasks:** 2 (consider linking to a goal or project)
+```
 
 ### Reflect
 - What went well today?
@@ -248,6 +280,8 @@ Task tools provide visibility into what's happening during longer operations. Ta
 Works with:
 - `/push` - Commit end-of-day changes
 - `/weekly` - Weekly planning uses daily notes
+- `/monthly` - Monthly goals inform daily focus
+- `/project` - Surface project next-actions in morning
 - `/onboard` - Load context before planning
 - Goal tracking skill - Align daily tasks to goals
 - Productivity Coach - Accountability for daily routines

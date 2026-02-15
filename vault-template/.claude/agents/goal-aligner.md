@@ -3,6 +3,7 @@ name: goal-aligner
 description: Analyze alignment between daily activities and long-term goals. Identify gaps, over/under-investment, and suggest rebalancing. Use for goal audits and priority checks.
 tools: Read, Grep, Glob, TaskCreate, TaskUpdate, TaskList
 model: sonnet
+memory: project
 ---
 
 # Goal Aligner Agent

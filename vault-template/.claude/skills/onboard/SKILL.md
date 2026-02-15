@@ -2,6 +2,7 @@
 name: onboard
 description: Load CLAUDE.md context files from vault for comprehensive understanding. Discovers hierarchical context, recent notes, and project states. Use at start of session or when Claude needs full vault context.
 allowed-tools: Read, Glob, Grep
+model: sonnet
 user-invocable: true
 ---
 
@@ -35,7 +36,12 @@ Invoke with `/onboard` or ask Claude to learn about your vault.
    - Project-specific CLAUDE.md files
    - Recent daily notes for current state
 
-3. **Builds Understanding**
+3. **Scans Active Projects**
+   - Auto-discovers all `Projects/*/CLAUDE.md` files
+   - Extracts project name, phase, progress, and goal linkage
+   - Displays active project count and summary in onboard output
+
+4. **Builds Understanding**
    - Your personal mission/goals
    - Project structures and status
    - Workflow preferences
@@ -101,6 +107,16 @@ Automatically considers:
 - Last 7 days of daily notes
 - Current week's review
 - Recently modified projects
+
+### Project Summary
+When loading full context, include a project overview:
+```markdown
+### Active Projects (N)
+| Project | Phase | Progress | Goal |
+|---------|-------|----------|------|
+| [[ProjectA]] | Active | 60% | [[Goal 1]] |
+| [[ProjectB]] | Planning | 10% | [[Goal 3]] |
+```
 
 ### Selective Loading
 For focused assistance:
@@ -178,4 +194,6 @@ Works with:
 - All other skills (provides context)
 - `/daily` - Better daily planning with context
 - `/weekly` - Informed weekly reviews
+- `/monthly` - Monthly review with full context
+- `/project` - Project status overview
 - Goal tracking - Understand goal cascade

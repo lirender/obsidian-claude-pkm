@@ -3,6 +3,7 @@ name: inbox-processor
 description: Process inbox items using GTD principles. Categorize, clarify, and organize captured notes into actionable items. Use for inbox zero and capture processing.
 tools: Read, Write, Edit, Glob, Bash, TaskCreate, TaskUpdate, TaskList
 model: sonnet
+memory: project
 ---
 
 # Inbox Processor Agent

@@ -3,6 +3,7 @@ name: weekly-reviewer
 description: Facilitate comprehensive weekly review process. Analyze past week's daily notes, calculate goal progress, and help plan next week. Use for Sunday/Monday weekly reviews.
 tools: Read, Write, Edit, Glob, Grep, TaskCreate, TaskUpdate, TaskList
 model: sonnet
+memory: project
 ---
 
 # Weekly Reviewer Agent

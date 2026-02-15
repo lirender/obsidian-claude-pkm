@@ -1,6 +1,6 @@
 #!/bin/bash
 # Session initialization hook for Obsidian PKM vault
-# Sets up environment variables for the Claude Code session
+# Sets up environment variables and surfaces priorities for the Claude Code session
 
 # Set vault path (defaults to current directory)
 export VAULT_PATH="${VAULT_PATH:-$(pwd)}"
@@ -22,3 +22,43 @@ fi
 echo "PKM Session initialized"
 echo "  Vault: $VAULT_PATH"
 echo "  Today: $TODAY"
+
+# Surface today's ONE Big Thing from most recent weekly review
+WEEKLY_REVIEW="$VAULT_PATH/Goals/3. Weekly Review.md"
+if [ -f "$WEEKLY_REVIEW" ]; then
+    ONE_BIG_THING=$(grep -A 1 "ONE Big Thing" "$WEEKLY_REVIEW" | tail -1 | sed 's/^[> ]*//' | sed 's/^[[:space:]]*//')
+    if [ -n "$ONE_BIG_THING" ] && [ "$ONE_BIG_THING" != "" ]; then
+        echo "  ONE Big Thing: $ONE_BIG_THING"
+    fi
+
+    # Days since last weekly review
+    LAST_REVIEW_DATE=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' "$WEEKLY_REVIEW" | tail -1)
+    if [ -n "$LAST_REVIEW_DATE" ]; then
+        if date -j -f "%Y-%m-%d" "$LAST_REVIEW_DATE" +%s >/dev/null 2>&1; then
+            # macOS
+            LAST_EPOCH=$(date -j -f "%Y-%m-%d" "$LAST_REVIEW_DATE" +%s 2>/dev/null)
+            NOW_EPOCH=$(date +%s)
+        else
+            # Linux
+            LAST_EPOCH=$(date -d "$LAST_REVIEW_DATE" +%s 2>/dev/null)
+            NOW_EPOCH=$(date +%s)
+        fi
+        if [ -n "$LAST_EPOCH" ] && [ -n "$NOW_EPOCH" ]; then
+            DAYS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 86400 ))
+            if [ "$DAYS_SINCE" -gt 7 ]; then
+                echo "  Weekly review overdue! Last review: $DAYS_SINCE days ago"
+            else
+                echo "  Last weekly review: $DAYS_SINCE days ago"
+            fi
+        fi
+    fi
+fi
+
+# Active project count
+PROJECTS_DIR="$VAULT_PATH/Projects"
+if [ -d "$PROJECTS_DIR" ]; then
+    PROJECT_COUNT=$(find "$PROJECTS_DIR" -maxdepth 2 -name "CLAUDE.md" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$PROJECT_COUNT" -gt 0 ]; then
+        echo "  Active projects: $PROJECT_COUNT"
+    fi
+fi

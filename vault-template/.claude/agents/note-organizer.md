@@ -3,6 +3,7 @@ name: note-organizer
 description: Organize and restructure vault notes. Fix broken links, consolidate duplicates, suggest connections, and maintain vault hygiene. Use when managing vault organization or cleaning up notes.
 tools: Read, Write, Edit, Glob, Grep, Bash, TaskCreate, TaskUpdate, TaskList
 model: sonnet
+memory: project
 ---
 
 # Note Organizer Agent

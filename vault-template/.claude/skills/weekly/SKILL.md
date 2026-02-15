@@ -42,13 +42,16 @@ Invoke with `/weekly` or ask Claude to help with your weekly review.
 - Identify wins and challenges
 - Capture lessons learned
 
-### Step 2: Goal Alignment (10 minutes)
+### Step 2: Goal Alignment + Project Rollup (10 minutes)
 - Check monthly goal progress
 - Adjust weekly priorities
 - Ensure alignment with yearly goals
+- Auto-scan `Projects/*/CLAUDE.md` for current status
+- Compile project progress table for the review note
 
 ### Step 3: Planning (10 minutes)
 - Set ONE big thing for the week
+- Include project next-actions when planning week
 - Schedule important tasks
 - Block time for deep work
 
@@ -106,6 +109,12 @@ The skill guides you through:
 ### This Week's Contribution
 - [Task] -> [[Goal]]
 
+## Project Progress
+| Project | Phase | Progress | Next Action |
+|---------|-------|----------|-------------|
+| [[ProjectA]] | Active | 60% | [Next step] |
+| [[ProjectB]] | Planning | 10% | [Next step] |
+
 ## Next Week Planning
 
 ### ONE Big Thing
@@ -115,6 +124,10 @@ The skill guides you through:
 - [ ]
 - [ ]
 - [ ]
+
+### Project Next-Actions
+- [ ] [ProjectA] - [specific next step]
+- [ ] [ProjectB] - [specific next step]
 
 ### Time Blocks
 - Monday:
@@ -202,11 +215,48 @@ Mark each task `in_progress` when starting, `completed` when done using TaskUpda
 
 Task tools are session-scoped and don't persist between Claude sessions—your actual weekly review content is saved in the review note.
 
+## Agent Team Workflow (Optional)
+
+For a faster, more thorough weekly review, use agent teams to parallelize the collection phase:
+
+```
+Team Lead (coordinator)
+├── collector agent — Read all daily notes, extract wins/challenges/tasks
+├── goal-analyzer agent — Read goal files, calculate progress, find gaps
+└── project-scanner agent — Scan Projects/*/CLAUDE.md, get status updates
+```
+
+### How to Use
+When invoking `/weekly`, you can request the team-based approach:
+```
+/weekly
+"Use the team approach for a thorough review"
+```
+
+The team lead:
+1. Spawns three agents to work in parallel
+2. Collector reads daily notes and extracts highlights
+3. Goal-analyzer reads all goal files and calculates progress
+4. Project-scanner reads all project CLAUDE.md files for status
+5. Team lead synthesizes findings into the weekly review note
+
+This makes the review faster (parallel collection) and more thorough (dedicated analysis per area).
+
+### Vault Health Check (Ad-hoc)
+
+The weekly review can optionally include a vault health check using multiple agents:
+- **note-organizer**: Scan for broken links, orphan notes
+- **goal-aligner**: Check daily-to-goal alignment
+- **inbox-processor**: Check for unprocessed items
+
+Request with: "Include a vault health check in my weekly review"
+
 ## Integration
 
 Works with:
 - `/daily` - Reviews daily notes from the week
+- `/monthly` - Weekly reviews feed monthly rollup
+- `/project` - Project status in review
 - `/push` - Commit after completing review
 - `/onboard` - Load context for informed review
 - Goal tracking skill - Progress calculations
-- `/daily` skill - Plan next week's routines

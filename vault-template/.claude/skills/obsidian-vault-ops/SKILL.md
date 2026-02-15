@@ -2,6 +2,7 @@
 name: obsidian-vault-ops
 description: Read and write Obsidian vault files, manage wiki-links, process markdown with YAML frontmatter. Use when working with vault file operations, creating notes, or managing links.
 allowed-tools: Read, Write, Edit, Glob, Grep
+model: sonnet
 ---
 
 # Obsidian Vault Operations Skill

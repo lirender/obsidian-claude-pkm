@@ -6,7 +6,7 @@
 
 A complete personal knowledge management system that combines Obsidian's powerful note-taking with Claude Code's AI assistance. Go from zero to a fully functional PKM in 15 minutes or less.
 
-**v2.1** - Unified skills pattern (skills and slash commands merged), hooks, agents, and rules.
+**v3.0** - The Cascade: end-to-end goals-to-tasks flow with `/project` and `/monthly` skills, agent memory, and agent teams.
 
 ## ✨ Features
 
@@ -17,12 +17,17 @@ A complete personal knowledge management system that combines Obsidian's powerfu
 - **🔄 Version Controlled** - Never lose a thought with automatic Git backups
 - **🎨 Fully Customizable** - Adapt templates and structure to your needs
 
-### AI-Powered (v2.1)
-- **⚡ Unified Skills** - Skills and slash commands merged (`/daily`, `/weekly`, `/push`, `/onboard`)
-- **🪝 Hooks** - Auto-commit on save, session initialization
+### AI-Powered (v3.0)
+- **🔗 The Cascade** - End-to-end flow: 3-year vision → yearly goals → projects → monthly → weekly → daily tasks
+- **📁 Project Management** - `/project` skill to create, track, and archive projects linked to goals
+- **📆 Monthly Reviews** - `/monthly` skill rolls up weekly reviews, checks quarterly milestones
+- **🧠 Agent Memory** - Agents learn your vault patterns across sessions (goal-aligner remembers misalignment patterns, weekly-reviewer learns your reflection style)
+- **👥 Agent Teams** - Parallel weekly reviews with collector, goal-analyzer, and project-scanner agents
+- **⚡ Unified Skills** - Skills and slash commands merged (`/daily`, `/weekly`, `/monthly`, `/project`, `/push`, `/onboard`)
+- **🪝 Hooks** - Auto-commit on save, session initialization with priority surfacing
 - **🤖 Custom Agents** - Note organizer, weekly reviewer, goal aligner, inbox processor
 - **📏 Modular Rules** - Path-specific conventions for markdown, productivity, projects
-- **🧠 Output Styles** - Productivity Coach for accountability
+- **🎭 Output Styles** - Productivity Coach for accountability
 - **📊 Status Line** - Vault stats in terminal (note count, inbox, uncommitted changes)
 - **👁️ Progress Visibility** - See spinner updates during multi-step operations like morning routines
 
@@ -89,6 +94,8 @@ Your Vault/
 │   ├── skills/                  # Unified skills (invoke with /skill-name)
 │   │   ├── daily/               # /daily - Create daily notes, routines
 │   │   ├── weekly/              # /weekly - Weekly review process
+│   │   ├── monthly/             # /monthly - Monthly review and planning (NEW)
+│   │   ├── project/             # /project - Create and track projects (NEW)
 │   │   ├── push/                # /push - Git commit and push
 │   │   ├── onboard/             # /onboard - Load vault context
 │   │   ├── goal-tracking/       # Auto: Track goal progress
@@ -130,7 +137,25 @@ To use the coach style in Claude Code:
 
 Learn more about [customizing output styles](docs/CUSTOMIZATION.md#output-styles).
 
-## 🤖 Custom Agents (v2.0)
+## 🔗 The Cascade
+
+The complete goals-to-tasks flow — the #1 requested feature:
+
+```
+3-Year Vision ──→ Yearly Goals ──→ Projects ──→ Monthly Goals ──→ Weekly Review ──→ Daily Tasks
+                                      ↑
+                              /project new
+                         (the bridge layer)
+```
+
+Every layer connects:
+- **`/project new`** creates a project linked to a yearly goal
+- **`/daily`** morning routine surfaces your ONE Big Thing + project next-actions
+- **`/weekly`** review includes a project progress table
+- **`/monthly`** review rolls up weekly reviews and checks quarterly milestones
+- **`/goal-tracking`** includes project completion % in goal progress calculations
+
+## 🤖 Custom Agents (v3.0)
 
 Ask Claude to use specialized agents for common PKM tasks:
 
@@ -148,12 +173,39 @@ claude "Use the goal-aligner agent to analyze my recent activity"
 claude "Use the inbox-processor agent to clear my inbox"
 ```
 
-## 🔄 Upgrading from v1.x
+## 🔄 Upgrading
 
-If you have an existing vault from v1.x:
+### From v2.1 to v3.0
 
 ```bash
-# 1. Copy new directories to your vault
+# 1. Copy new skill directories
+cp -r vault-template/.claude/skills/project your-vault/.claude/skills/
+cp -r vault-template/.claude/skills/monthly your-vault/.claude/skills/
+
+# 2. Update existing files (review diff first)
+cp vault-template/.claude/settings.json your-vault/.claude/
+cp vault-template/.claude/hooks/session-init.sh your-vault/.claude/hooks/
+
+# 3. Update agents (adds memory: project)
+cp vault-template/.claude/agents/*.md your-vault/.claude/agents/
+
+# 4. Update existing skills (adds cascade features)
+cp -r vault-template/.claude/skills/daily your-vault/.claude/skills/
+cp -r vault-template/.claude/skills/weekly your-vault/.claude/skills/
+cp -r vault-template/.claude/skills/goal-tracking your-vault/.claude/skills/
+cp -r vault-template/.claude/skills/onboard your-vault/.claude/skills/
+
+# 5. Review and merge CLAUDE.md changes
+# Add /project and /monthly to your skills table, bump version
+
+# 6. Make scripts executable
+chmod +x your-vault/.claude/hooks/*.sh
+```
+
+### From v1.x to v3.0
+
+```bash
+# 1. Copy all new directories to your vault
 cp -r vault-template/.claude-plugin your-vault/
 cp -r vault-template/.claude/agents your-vault/.claude/
 cp -r vault-template/.claude/skills your-vault/.claude/

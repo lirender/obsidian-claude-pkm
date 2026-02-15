@@ -2,6 +2,7 @@
 name: goal-tracking
 description: Track progress toward 3-year, yearly, monthly, and weekly goals. Calculate completion percentages, surface stalled goals, connect daily tasks to objectives. Use for goal reviews and progress tracking.
 allowed-tools: Read, Grep, Glob, Edit, TaskCreate, TaskUpdate, TaskList, TaskGet
+model: sonnet
 ---
 
 # Goal Tracking Skill
@@ -14,6 +15,8 @@ Track and manage the cascading goal system from long-term vision to daily tasks.
 Goals/0. Three Year Goals.md   <- Vision (Life areas)
     ↓
 Goals/1. Yearly Goals.md       <- Annual objectives
+    ↓
+Projects/*/CLAUDE.md           <- Active projects (bridge layer)
     ↓
 Goals/2. Monthly Goals.md      <- Current month focus
     ↓
@@ -97,6 +100,20 @@ When adding tasks to daily notes:
 2. Flag goals with no progress in 14+ days
 3. Suggest actions to restart momentum
 
+## Project-Aware Progress
+
+### Project Integration
+When calculating goal progress, include project data:
+1. Scan `Projects/*/CLAUDE.md` for all active projects
+2. Match projects to goals via their "Goal Link" / "Supports" field
+3. Include project completion % in goal progress calculations
+4. Surface which projects support each goal
+
+### Orphan Goal Detection
+Flag goals that have no active project supporting them:
+- A goal with 0 linked projects may need a project created (`/project new`)
+- A goal with only completed/archived projects may need a new initiative
+
 ## Progress Report Format
 
 ```markdown
@@ -105,18 +122,28 @@ When adding tasks to daily notes:
 ### Overall: XX%
 
 ### By Goal
-| Goal | Progress | Last Activity | Status |
-|------|----------|---------------|--------|
-| Goal 1 | 75% | 2 days ago | On Track |
-| Goal 2 | 30% | 14 days ago | Stalled |
+| Goal | Progress | Projects | Last Activity | Status |
+|------|----------|----------|---------------|--------|
+| Goal 1 | 75% | [[ProjectA]] (80%), [[ProjectB]] (60%) | 2 days ago | On Track |
+| Goal 2 | 30% | (none) | 14 days ago | Stalled |
+
+### Project Status
+| Project | Goal | Progress | Phase |
+|---------|------|----------|-------|
+| [[ProjectA]] | Goal 1 | 80% | Active |
+| [[ProjectB]] | Goal 1 | 60% | Active |
+
+### Orphan Goals (no active project)
+- Goal 2 — Consider `/project new` to create a supporting project
 
 ### This Week's Contributions
-- [Task] -> [[Goal 1]]
+- [Task] -> [[Goal 1]] via [[ProjectA]]
 - [Task] -> [[Goal 2]]
 
 ### Recommended Focus
 1. [Stalled goal needs attention]
 2. [Nearly complete goal - finish it]
+3. [Orphan goal needs a project]
 ```
 
 ## Task-Based Progress Tracking
@@ -174,7 +201,8 @@ Task tools are session-scoped and don't persist—your actual goal progress is t
 
 ## Integration Points
 
-- Weekly review: Full progress assessment
-- Daily planning: Surface relevant goals
-- Monthly review: Adjust goals as needed
+- `/weekly` review: Full progress assessment with project rollup
+- `/daily` planning: Surface relevant goals and project next-actions
+- `/monthly` review: Adjust goals as needed, check quarterly milestones
+- `/project status`: Project completion feeds goal calculations
 - Quarterly review: Cascade from 3-year vision

@@ -2,6 +2,8 @@
 name: push
 description: Commit and push vault changes to Git with smart commit messages. Auto-stages files, creates meaningful commits, and syncs with remote. Use after making vault changes or at end of day.
 allowed-tools: Bash, Read, Glob
+model: sonnet
+disable-model-invocation: true
 user-invocable: true
 ---
 
