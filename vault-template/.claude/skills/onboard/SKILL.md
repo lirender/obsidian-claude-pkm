@@ -1,30 +1,96 @@
 ---
 name: onboard
-description: Load CLAUDE.md context files from vault for comprehensive understanding. Discovers hierarchical context, recent notes, and project states. Use at start of session or when Claude needs full vault context.
-allowed-tools: Read, Glob, Grep
+description: Interactive vault setup and context loading. On first run, personalizes your vault. On subsequent runs, loads full context. Use at start of session or when Claude needs full vault context.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 model: sonnet
 user-invocable: true
 ---
 
 # Onboard Skill
 
-Loads all CLAUDE.md files from your vault to provide comprehensive context for intelligent assistance.
+Interactive vault setup (first run) and context loading (subsequent runs).
 
 ## Usage
 
-Invoke with `/onboard` or ask Claude to learn about your vault.
-
-### Full Context Load
 ```
-/onboard
+/onboard                    # Full onboard (setup if first run, context load if not)
+/onboard Projects/MyProject # Load specific project context
 ```
 
-### Specific Project Context
-```
-/onboard Projects/MyProject
+## First-Run Setup
+
+If the file `FIRST_RUN` exists in the vault root, this is a new vault. Run the interactive setup:
+
+### Step 1: Welcome
+Greet the user and explain what will happen:
+- "I'll ask a few questions to personalize your vault (~2 minutes)"
+- "Your answers are saved locally in vault-config.json"
+- "You can change these anytime by editing that file or running /onboard again"
+
+### Step 2: Ask Questions
+
+Use AskUserQuestion to ask these interactively:
+
+**Question 1: Your name**
+- "What should I call you?"
+- Used for personalized prompts and greetings
+
+**Question 2: Preferred review day**
+- "What day do you prefer for your weekly review?"
+- Options: Sunday (Recommended), Saturday, Monday, Friday
+- Used by `/review` auto-detection and session-init nudges
+
+**Question 3: Primary goal areas**
+- "Which areas are most important to you right now? (Pick 2-4)"
+- Options: Career & Professional, Health & Wellness, Relationships, Personal Growth
+- Also offer: Financial, Creativity & Fun, Learning, Other
+- multiSelect: true
+- Used to customize goal template suggestions
+
+**Question 4: Work style**
+- "How do you prefer Claude to interact?"
+- Options: Direct and concise (Recommended), Coaching and challenging, Detailed and thorough, Minimal — just do the task
+- Sets output style preference
+
+### Step 3: Save Configuration
+
+Write `vault-config.json` in the vault root:
+```json
+{
+  "name": "User's name",
+  "reviewDay": "Sunday",
+  "goalAreas": ["Career & Professional", "Health & Wellness"],
+  "workStyle": "Direct and concise",
+  "setupDate": "2026-02-15",
+  "version": "3.1"
+}
 ```
 
-## What This Skill Does
+### Step 4: Personalize CLAUDE.md
+
+Edit the root `CLAUDE.md`:
+- Replace `[CUSTOMIZE: Add your personal mission statement here]` with a prompt based on their goal areas
+- Update the "Current Focus" section to reference their chosen areas
+
+### Step 5: Remove First-Run Marker
+
+```bash
+rm FIRST_RUN
+```
+
+### Step 6: Confirm Setup
+
+Tell the user:
+- "Your vault is set up! Here's what's available:"
+- Brief cascade overview
+- "Try `/daily` to start your first morning routine"
+- "Try `/review` anytime — it auto-detects the right review type"
+
+Then proceed to the standard context loading below.
+
+## Standard Context Loading (Subsequent Runs)
+
+### What This Skill Does
 
 1. **Discovers Context Files**
    - Searches for all CLAUDE.md files
@@ -41,7 +107,12 @@ Invoke with `/onboard` or ask Claude to learn about your vault.
    - Extracts project name, phase, progress, and goal linkage
    - Displays active project count and summary in onboard output
 
-4. **Builds Understanding**
+4. **Reads User Preferences**
+   - Loads `vault-config.json` if present
+   - Applies name, review day, work style preferences
+   - Uses goal areas to prioritize context loading
+
+5. **Builds Understanding**
    - Your personal mission/goals
    - Project structures and status
    - Workflow preferences

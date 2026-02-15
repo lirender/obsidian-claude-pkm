@@ -36,8 +36,10 @@ Skills are invoked with `/skill-name` or automatically by Claude when relevant.
 | `weekly` | `/weekly` | Run weekly review, reflect and plan |
 | `monthly` | `/monthly` | Monthly review, quarterly milestone check, next month planning |
 | `project` | `/project` | Create, track, and archive projects linked to goals |
+| `review` | `/review` | Smart router — auto-detects daily/weekly/monthly based on context |
 | `push` | `/push` | Commit and push changes to Git |
-| `onboard` | `/onboard` | Load full vault context |
+| `onboard` | `/onboard` | Interactive setup (first run) + load vault context |
+| `upgrade` | `/upgrade` | Update to latest version, preserving your content |
 | `goal-tracking` | (auto) | Track progress across goal cascade with project awareness |
 | `obsidian-vault-ops` | (auto) | Read/write vault files, manage wiki-links |
 
@@ -123,7 +125,7 @@ See `CLAUDE.local.md.template` for format.
 
 *See @.claude/rules/ for detailed conventions*
 *Last Updated: 2026-02-15*
-*System Version: 3.0 (The Cascade)*
+*System Version: 3.1*
 
 
 <claude-mem-context>

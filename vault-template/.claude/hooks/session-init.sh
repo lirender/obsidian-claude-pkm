@@ -13,6 +13,25 @@ export CURRENT_WEEK=$(date +%Y-W%V)
 # Daily note path
 export DAILY_NOTE="$VAULT_PATH/Daily Notes/$TODAY.md"
 
+# First-run detection
+if [ -f "$VAULT_PATH/FIRST_RUN" ]; then
+    echo ""
+    echo "Welcome to the Obsidian + Claude Code AI Accountability System!"
+    echo ""
+    echo "  The Cascade — your goals-to-tasks execution system:"
+    echo ""
+    echo "  3-Year Vision -> Yearly Goals -> Projects -> Monthly -> Weekly -> Daily"
+    echo "       |               |             |           |          |        |"
+    echo "  /goal-tracking  /goal-tracking  /project   /monthly   /weekly   /daily"
+    echo ""
+    echo "  Run /onboard to personalize your vault (takes ~2 minutes)."
+    echo "  This will ask your name, preferred review day, and goal areas."
+    echo ""
+    echo "  After that, try /daily to start your first morning routine."
+    echo ""
+    exit 0
+fi
+
 # Verify vault structure
 if [ ! -f "$VAULT_PATH/CLAUDE.md" ]; then
     echo "Note: Not in a vault root directory (no CLAUDE.md found)"
