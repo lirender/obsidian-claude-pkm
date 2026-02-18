@@ -64,6 +64,16 @@ claude
 
 On first run, you'll see a welcome message with the cascade visualization. Run `/onboard` to personalize your vault — it asks your name, preferred review day, and goal areas, then configures everything.
 
+### Already have a vault?
+
+You don't need to start from the template. Run `/adopt` from the root of your existing Obsidian vault — it scans your folder structure, detects your organization method (PARA, Zettelkasten, LYT, etc.), maps your folders interactively, and generates all config files scoped to your directory names. Your vault structure stays untouched.
+
+```bash
+cd ~/your-existing-vault
+claude
+# then type: /adopt
+```
+
 ### Windows
 
 ```bash
@@ -83,6 +93,7 @@ scripts\setup.bat
 | Review | `/review` | Smart router — detects morning/Sunday/end-of-month context |
 | Push | `/push` | Commit and push vault changes to Git |
 | Onboard | `/onboard` | Interactive setup + load vault context |
+| Adopt | `/adopt` | Scaffold onto an existing vault (BYOV) |
 | Upgrade | `/upgrade` | Update to latest version, preserving your content |
 | Goal Tracking | *(auto)* | Track progress across the full cascade |
 | Vault Ops | *(auto)* | Read/write files, manage wiki-links |
