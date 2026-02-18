@@ -11,7 +11,7 @@ export YESTERDAY=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d "yesterday" +%Y-%
 export CURRENT_WEEK=$(date +%Y-W%V)
 
 # Daily note path
-export DAILY_NOTE="$VAULT_PATH/Daily Notes/$TODAY.md"
+export DAILY_NOTE="$VAULT_PATH/${DAILY_NOTES_DIR:-Daily Notes}/$TODAY.md"
 
 # First-run detection
 if [ -f "$VAULT_PATH/FIRST_RUN" ]; then
@@ -43,7 +43,7 @@ echo "  Vault: $VAULT_PATH"
 echo "  Today: $TODAY"
 
 # Surface today's ONE Big Thing from most recent weekly review
-WEEKLY_REVIEW="$VAULT_PATH/Goals/3. Weekly Review.md"
+WEEKLY_REVIEW="$VAULT_PATH/${GOALS_DIR:-Goals}/3. Weekly Review.md"
 if [ -f "$WEEKLY_REVIEW" ]; then
     ONE_BIG_THING=$(grep -A 1 "ONE Big Thing" "$WEEKLY_REVIEW" | tail -1 | sed 's/^[> ]*//' | sed 's/^[[:space:]]*//')
     if [ -n "$ONE_BIG_THING" ] && [ "$ONE_BIG_THING" != "" ]; then
@@ -74,9 +74,9 @@ if [ -f "$WEEKLY_REVIEW" ]; then
 fi
 
 # Active project count
-PROJECTS_DIR="$VAULT_PATH/Projects"
-if [ -d "$PROJECTS_DIR" ]; then
-    PROJECT_COUNT=$(find "$PROJECTS_DIR" -maxdepth 2 -name "CLAUDE.md" 2>/dev/null | wc -l | tr -d ' ')
+PROJECTS_DIR_PATH="$VAULT_PATH/${PROJECTS_DIR:-Projects}"
+if [ -d "$PROJECTS_DIR_PATH" ]; then
+    PROJECT_COUNT=$(find "$PROJECTS_DIR_PATH" -maxdepth 2 -name "CLAUDE.md" 2>/dev/null | wc -l | tr -d ' ')
     if [ "$PROJECT_COUNT" -gt 0 ]; then
         echo "  Active projects: $PROJECT_COUNT"
     fi

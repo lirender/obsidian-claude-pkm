@@ -39,6 +39,7 @@ Skills are invoked with `/skill-name` or automatically by Claude when relevant.
 | `review` | `/review` | Smart router — auto-detects daily/weekly/monthly based on context |
 | `push` | `/push` | Commit and push changes to Git |
 | `onboard` | `/onboard` | Interactive setup (first run) + load vault context |
+| `adopt` | `/adopt` | Scaffold PKM system onto an existing Obsidian vault |
 | `upgrade` | `/upgrade` | Update to latest version, preserving your content |
 | `goal-tracking` | (auto) | Track progress across goal cascade with project awareness |
 | `obsidian-vault-ops` | (auto) | Read/write vault files, manage wiki-links |

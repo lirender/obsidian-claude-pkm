@@ -25,14 +25,19 @@ fi
 # Generate commit message based on file location
 TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
 
-if [[ "$MODIFIED_FILE" == *"Daily Notes"* ]]; then
+DAILY_DIR="${DAILY_NOTES_DIR:-Daily Notes}"
+GOALS_DIR_NAME="${GOALS_DIR:-Goals}"
+PROJECTS_DIR_NAME="${PROJECTS_DIR:-Projects}"
+TEMPLATES_DIR_NAME="${TEMPLATES_DIR:-Templates}"
+
+if [[ "$MODIFIED_FILE" == *"$DAILY_DIR"* ]]; then
     MSG="Update daily note - $TIMESTAMP"
-elif [[ "$MODIFIED_FILE" == *"Goals"* ]]; then
+elif [[ "$MODIFIED_FILE" == *"$GOALS_DIR_NAME"* ]]; then
     MSG="Update goals - $TIMESTAMP"
-elif [[ "$MODIFIED_FILE" == *"Projects"* ]]; then
-    PROJECT=$(echo "$MODIFIED_FILE" | sed 's|.*/Projects/\([^/]*\)/.*|\1|')
+elif [[ "$MODIFIED_FILE" == *"$PROJECTS_DIR_NAME"* ]]; then
+    PROJECT=$(echo "$MODIFIED_FILE" | sed "s|.*/$PROJECTS_DIR_NAME/\([^/]*\)/.*|\1|")
     MSG="Update project: $PROJECT - $TIMESTAMP"
-elif [[ "$MODIFIED_FILE" == *"Templates"* ]]; then
+elif [[ "$MODIFIED_FILE" == *"$TEMPLATES_DIR_NAME"* ]]; then
     MSG="Update template - $TIMESTAMP"
 else
     MSG="Vault update - $TIMESTAMP"

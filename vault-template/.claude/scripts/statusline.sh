@@ -9,8 +9,8 @@ TOTAL_NOTES=$(find "$VAULT_PATH" -name "*.md" -type f -not -path "*/\.*" 2>/dev/
 
 # Count inbox items
 INBOX_COUNT=0
-if [ -d "$VAULT_PATH/Inbox" ]; then
-    INBOX_COUNT=$(find "$VAULT_PATH/Inbox" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+if [ -d "$VAULT_PATH/${INBOX_DIR:-Inbox}" ]; then
+    INBOX_COUNT=$(find "$VAULT_PATH/${INBOX_DIR:-Inbox}" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
 fi
 
 # Add notes tagged with #inbox (if grep available)
@@ -28,7 +28,7 @@ fi
 
 # Check if today's note exists
 TODAY=$(date +%Y-%m-%d)
-if [ -f "$VAULT_PATH/Daily Notes/$TODAY.md" ]; then
+if [ -f "$VAULT_PATH/${DAILY_NOTES_DIR:-Daily Notes}/$TODAY.md" ]; then
     TODAY_STATUS="Yes"
 else
     TODAY_STATUS="No"
