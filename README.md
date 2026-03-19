@@ -95,6 +95,7 @@ scripts\setup.bat
 | Onboard | `/onboard` | Interactive setup + load vault context |
 | Adopt | `/adopt` | Scaffold onto an existing vault (BYOV) |
 | Upgrade | `/upgrade` | Update to latest version, preserving your content |
+| Calendar Sync | *(auto)* | Sync macOS calendar to daily note, create meeting notes, time-block |
 | Goal Tracking | *(auto)* | Track progress across the full cascade |
 | Vault Ops | *(auto)* | Read/write files, manage wiki-links |
 
@@ -143,7 +144,7 @@ Your Vault/
 ├── CLAUDE.md                    # AI context and navigation
 ├── .claude/
 │   ├── agents/                  # 4 specialized AI agents (with memory)
-│   ├── skills/                  # 10 skills (8 listed above + 2 auto)
+│   ├── skills/                  # 11 skills (8 listed above + 3 auto)
 │   ├── hooks/                   # Auto-commit, session init, skill discovery
 │   ├── rules/                   # Path-specific conventions
 │   ├── output-styles/           # Productivity Coach

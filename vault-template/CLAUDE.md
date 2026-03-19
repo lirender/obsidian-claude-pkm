@@ -41,6 +41,7 @@ Skills are invoked with `/skill-name` or automatically by Claude when relevant.
 | `onboard` | `/onboard` | Interactive setup (first run) + load vault context |
 | `adopt` | `/adopt` | Scaffold PKM system onto an existing Obsidian vault |
 | `learnings` | `/learnings` | Sync session work from any project to vault |
+| `calendar-sync` | (auto) | Sync macOS calendar to daily note, create meeting notes, time-block the day |
 | `contacts` | `/contacts` | Enrich external contacts — email, signature, company research, vault notes |
 | `upgrade` | `/upgrade` | Update to latest version, preserving your content |
 | `goal-tracking` | (auto) | Track progress across goal cascade with project awareness |
