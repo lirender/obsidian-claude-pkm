@@ -57,6 +57,7 @@ Your daily template can use:
 3. Read this week's ONE Big Thing from `Goals/3. Weekly Review.md`
 4. Surface active project next-actions from `Projects/*/CLAUDE.md`
 5. Review weekly goals for today's priority
+6. Create stub meeting notes for qualifying meetings (see Meeting Notes)
 
 ### Cascade Context Surfacing
 Before interactive prompts, automatically surface:
@@ -91,6 +92,7 @@ When adding tasks to the daily note, recommend linking to goals/projects:
 - [ ] ONE priority identified
 - [ ] Time blocks set
 - [ ] Potential obstacles identified
+- [ ] Meeting notes stubbed for qualifying meetings
 
 ## Midday Check-in (2-3 minutes)
 
@@ -145,12 +147,86 @@ Automatically generate an end-of-day summary showing which goals and projects re
 - [ ] Tomorrow's priority identified
 - [ ] Changes committed
 
+## Meeting Notes
+
+### When to Create a Stub Meeting Note
+
+Create a separate meeting note (and embed it in the daily note) when a meeting has **any** of the following:
+- 3 or more attendees (including yourself)
+- Any external attendee marked `[[Name]] (external)`
+- The event title contains words like: review, planning, 1:1, sync, kickoff, demo, debrief, interview
+
+Skip stub creation for: solo focus blocks, personal reminders, recurring standup < 15 min with 2 people.
+
+### Naming Convention
+
+```
+Daily Notes/YYYY-MM-DD Meeting Title.md
+```
+
+Sanitize the title: remove special characters, shorten if > 50 chars, use spaces (not hyphens).
+
+Examples:
+- `2026-03-18 AR automation project for Rhythm.md`
+- `2026-03-18 Weekly 1on1 Brad Asher.md`
+- `2026-03-18 Segregation of inputs.md`
+
+### Meeting Note Template
+
+```markdown
+---
+date: YYYY-MM-DD
+tags: [meeting]
+attendees: [Name1, Name2]
+---
+
+# Meeting Title
+
+**Date:** [[YYYY-MM-DD]] | **Time:** HH:MM - HH:MM
+**Attendees:** [[Attendee 1]], [[Attendee 2]]
+
+## Agenda / Context
+
+## Notes
+
+## Decisions
+
+## Action Items
+- [ ]
+
+## Follow-up
+```
+
+Fill `date`, `time`, `attendees` from the Schedule table in the daily note. Leave all content sections empty — they are stubs for the user to fill during/after the meeting.
+
+### Embedding Back into the Daily Note
+
+After creating the stub, add a `## Meetings` section to the daily note **immediately after** `## Schedule`:
+
+```markdown
+## Meetings
+
+### AR automation project for Rhythm
+![[2026-03-18 AR automation project for Rhythm]]
+
+### Weekly 1:1 Brad Asher
+![[2026-03-18 Weekly 1on1 Brad Asher]]
+```
+
+Each qualifying meeting gets a sub-heading (H3) with the event name, followed by the embed. This keeps the Schedule table clean while making notes accessible inline.
+
+### Idempotency
+
+Before creating, check if `Daily Notes/YYYY-MM-DD Meeting Title.md` already exists. If it does, skip creation but still include the embed in the daily note if missing. Never overwrite existing meeting notes.
+
+---
+
 ## Daily Note Structure
 
 Standard daily note template:
 
 ```markdown
-# {{date}}
+# {{date:dddd, MMMM D}}
 
 ## Focus
 > What's the ONE thing that would make today successful?
@@ -283,5 +359,6 @@ Works with:
 - `/monthly` - Monthly goals inform daily focus
 - `/project` - Surface project next-actions in morning
 - `/onboard` - Load context before planning
+- `/contacts` - Enrich external attendees found in meeting notes
 - Goal tracking skill - Align daily tasks to goals
 - Productivity Coach - Accountability for daily routines
