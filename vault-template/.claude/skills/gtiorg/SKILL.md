@@ -1,7 +1,7 @@
 ---
 name: gtiorg
-description: Crawl GTI org chart from Teams Org Explorer via Chrome, produce department-level vault pages, detect gaps against daily notes, fuzzy-match names. Supports full crawl, targeted person re-crawl, and idempotent skipping.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, mcp__Claude_in_Chrome__navigate, mcp__Claude_in_Chrome__tabs_context_mcp, mcp__Claude_in_Chrome__tabs_create_mcp, mcp__Claude_in_Chrome__computer, mcp__Claude_in_Chrome__get_page_text, mcp__Claude_in_Chrome__read_page, mcp__Claude_in_Chrome__find, mcp__Claude_in_Chrome__form_input, mcp__Claude_in_Chrome__javascript_tool
+description: Crawl GTI org chart from Teams Org Explorer via gstack browse, produce department-level vault pages, detect gaps against daily notes, fuzzy-match names. Supports full crawl, targeted person re-crawl, and idempotent skipping.
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet
 user-invocable: true
 ---
 
@@ -85,13 +85,33 @@ departments_crawled:
 
 **Targeted (`--person`):** Queue only that person's subtree. Determine their department from existing orgchart pages.
 
-### 0d. Verify browser
+### 0d. Setup & verify browser
 
-1. `mcp__Claude_in_Chrome__tabs_context_mcp` — verify Chrome connected
-   - Not connected → stop: "Connect claude-in-chrome and log into Outlook first."
-2. Navigate to Org Explorer URL
-3. Verify page loads (look for search bar or org chart elements)
-   - Not logged in → stop: "Log into your Microsoft account in Chrome first."
+**Resolve gstack browse binary:**
+```bash
+_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+B=""
+[ -n "$_ROOT" ] && [ -x "$_ROOT/.claude/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.claude/skills/gstack/browse/dist/browse"
+[ -z "$B" ] && B=~/.claude/skills/gstack/browse/dist/browse
+$B status
+```
+
+If `NEEDS_SETUP` → tell user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?"
+
+**Import Outlook/Microsoft cookies:**
+```bash
+$B cookie-import-browser --domain .outlook.office.com
+$B cookie-import-browser --domain .office.com
+$B cookie-import-browser --domain .microsoft.com
+```
+
+**Verify auth works:**
+```bash
+$B goto https://outlook.office.com/host/1f8c20f5-d70f-4f8e-93e1-31d8fce0c8c9/096f3341-6ebc-45ac-b97f-e28aecd40b66/a953b2ce-b28f-48a5-a752-041089f4e197
+$B text
+```
+- If redirected to login → stop: "Import your Outlook cookies first: run `/setup-browser-cookies` and select Microsoft/Outlook domains."
+- If Org Explorer loads (search bar visible) → proceed.
 
 ---
 
@@ -451,25 +471,35 @@ If user confirms names → run targeted crawl (Phase 4) for each.
 
 ---
 
-## Chrome Interaction Patterns
+## Browser Interaction Patterns
+
+All browser interaction uses the gstack browse binary (`$B`). Never use `mcp__claude-in-chrome__*` tools directly.
 
 ### Searching for a person
-1. Click the search bar in Org Explorer (usually top of page)
-2. Type person's full name
-3. Wait for dropdown results (~1-2 seconds)
-4. Click the correct result (match on name + title if ambiguous)
-5. Wait for profile to load
+```bash
+$B snapshot -i                     # find search bar
+$B fill @eN "{person name}"       # fill search input
+$B wait --networkidle              # wait for dropdown results
+$B snapshot -i                     # see dropdown results
+$B click @eN                       # click correct result
+$B wait --networkidle              # wait for profile to load
+```
 
 ### Reading the Organization tab
-1. Click "Organization" tab (may already be active)
-2. **Manager** section: person above in the hierarchy
-3. **Direct reports** section: cards below, each showing name + title
-4. If "Show more" or pagination exists → click to load all reports
-5. Read each card: extract name and title text
+```bash
+$B snapshot -i                     # see tab options
+$B click @eN                       # click "Organization" tab
+$B wait --networkidle
+$B text                            # read manager + direct reports
+$B snapshot -i                     # see clickable report cards
+```
+- **Manager** section: person above in the hierarchy
+- **Direct reports** section: cards below, each showing name + title
+- If "Show more" or pagination exists → `$B click @eN` to load all reports
 
 ### Handling load states
-- If page shows spinner → wait 2 seconds, re-read
-- If "Show more" button visible → click it, wait for load
+- If page shows spinner → `$B wait --networkidle` then re-read with `$B text`
+- If "Show more" button visible → `$B click @eN`, then `$B wait --networkidle`
 - If no Organization tab visible → person may be a contractor (no org data)
 - If search returns no results → try last name only, then first name only
 
@@ -484,8 +514,8 @@ If user confirms names → run targeted crawl (Phase 4) for each.
 
 | Situation | Action |
 |-----------|--------|
-| Chrome not connected | Stop — tell user to connect |
-| Not logged into Outlook | Stop — tell user to log in |
+| gstack browse not built | Tell user to run setup |
+| Outlook cookies not imported | Stop — tell user to run `/setup-browser-cookies` for Microsoft/Outlook domains |
 | Person not found in search | Log warning, continue with next person |
 | Organization tab missing | Log as contractor/external, skip subtree |
 | Page won't load after 3 attempts | Skip person, log error, continue |

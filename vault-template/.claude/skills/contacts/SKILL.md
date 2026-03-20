@@ -1,7 +1,7 @@
 ---
 name: contacts
 description: Enrich external contacts from calendar meetings — scan daily notes for unprocessed externals, get emails via Outlook Calendar, extract signatures from Outlook Mail, research companies, and create/update MOC-Vendors hub + company + contact notes. Defaults to 90-day lookback. Tracks processed dates in daily note frontmatter to avoid redundant work.
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite, WebSearch, WebFetch, mcp__Claude_in_Chrome__navigate, mcp__Claude_in_Chrome__tabs_context_mcp, mcp__Claude_in_Chrome__tabs_create_mcp, mcp__Claude_in_Chrome__computer, mcp__Claude_in_Chrome__get_page_text, mcp__Claude_in_Chrome__read_page, mcp__Claude_in_Chrome__find
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite, WebSearch, WebFetch
 user-invocable: true
 ---
 
@@ -120,19 +120,58 @@ When running the skill for the first time against an existing vault:
 
 The work list from Phase 1 contains `{ date, contact_name, meeting_title }` for each person. Use that — not any meeting-title filter — to know which meeting to open.
 
-1. `mcp__Claude_in_Chrome__tabs_context_mcp` — verify Chrome connected (once, at start)
-   - Not connected → stop: "Connect claude-in-chrome and log into Outlook first"
-2. Navigate to `outlook.office.com/calendar/view/day/YYYY/M/DD`
-3. **Find the meeting by title** from the daily note — it might be any meeting, internal or external. Do NOT filter by `[EXTERNAL]` in the title; that prefix only appears when the *organizer* is external and is irrelevant here.
-4. **Double-click** the meeting to open full event view
-5. In the **Tracking** panel (right side), click the contact's name → contact card popup
-6. Read the **Email** field
-7. Record: `name → email`
+### 2a. Browser setup (once per session)
+
+```bash
+# Resolve gstack browse binary
+_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+B=""
+[ -n "$_ROOT" ] && [ -x "$_ROOT/.claude/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.claude/skills/gstack/browse/dist/browse"
+[ -z "$B" ] && B=~/.claude/skills/gstack/browse/dist/browse
+$B status
+```
+
+If `NEEDS_SETUP` → tell user: "gstack browse needs a one-time build (~10 seconds). OK to proceed?"
+
+```bash
+# Import Outlook cookies from real browser
+$B cookie-import-browser --domain .outlook.office.com
+$B cookie-import-browser --domain .office.com
+$B cookie-import-browser --domain .microsoft.com
+```
+
+Verify auth works:
+```bash
+$B goto https://outlook.office.com/calendar/
+$B text
+```
+If redirected to login → stop: "Import your Outlook cookies first: run `/setup-browser-cookies` and select outlook.office.com domains."
+
+### 2b. Navigate calendar and extract emails
+
+```bash
+# Navigate to the date
+$B goto https://outlook.office.com/calendar/view/day/YYYY/M/DD
+$B snapshot -i                    # see interactive elements
+```
+
+1. **Find the meeting by title** from the daily note — it might be any meeting, internal or external. Do NOT filter by `[EXTERNAL]` in the title; that prefix only appears when the *organizer* is external and is irrelevant here.
+2. **Click** the meeting element → opens event view
+   ```bash
+   $B click @eN                   # click the meeting by its @e ref
+   $B snapshot -i                 # see event detail elements
+   ```
+3. In the **Tracking** panel, click the contact's name → contact card popup
+   ```bash
+   $B click @eN                   # click contact name
+   $B text                        # read contact card — extract email
+   ```
+4. Record: `name → email`
 
 **If email is `@gtigrows.com`** → false positive (they're GTI staff), remove from list, note the discrepancy.
 **If no email in card** → note `email_unknown`, continue.
 
-**Efficiency — batch by date:** Group contacts by date before opening Outlook. For a given day, navigate once and collect all contacts from all meetings on that day before moving to the next date. For contacts in the same meeting, click all their names before navigating away.
+**Efficiency — batch by date:** Group contacts by date before opening Outlook. For a given day, `$B goto` once and collect all contacts from all meetings on that day before moving to the next date. For contacts in the same meeting, click all their names before navigating away.
 
 ---
 
@@ -140,11 +179,24 @@ The work list from Phase 1 contains `{ date, contact_name, meeting_title }` for 
 
 For each contact with a known email:
 
-1. Navigate once to `outlook.office.com/mail/` (reuse if already there)
-2. Search bar → `from:{email}` → Enter
-3. **If results found:** open most recent non-invite email
-   - Scroll to signature block
-   - Extract: title/role, phone, official company name
+1. Navigate to Outlook Mail (reuse tab if already there):
+   ```bash
+   $B goto https://outlook.office.com/mail/
+   $B snapshot -i                  # find search bar
+   ```
+2. Search for the contact's email:
+   ```bash
+   $B fill @eN "from:{email}"     # fill search bar
+   $B press Enter
+   $B wait --networkidle
+   $B snapshot -i                  # see search results
+   ```
+3. **If results found:** click most recent non-invite email
+   ```bash
+   $B click @eN                   # click email row
+   $B text                        # read email body — extract signature block
+   ```
+   - Extract from signature: title/role, phone, official company name
 4. **If no results or only invites:** note `No email history` — title and phone = `Unknown`
 
 **Calendar invite detection:** skip emails where subject starts with "Invitation:", "Updated invitation:", or body is only Zoom/Teams join link with no prose.
@@ -352,8 +404,8 @@ grep "\[\[" vault/Companies/MOC-Vendors.md
 
 | Situation | Action |
 |-----------|--------|
-| Chrome not connected | Stop — tell user to connect, skip Phase 2+ |
-| Not logged into Outlook | Stop — tell user to log in |
+| gstack browse not built | Tell user to run setup, skip Phase 2+ |
+| Outlook cookies not imported | Stop — tell user to run `/setup-browser-cookies` for outlook.office.com |
 | No `(external)` found in range | Report "Nothing to process in last 90 days" |
 | Contact card has no email | Mark `email_unknown`, continue |
 | No Outlook Mail results | Mark `No email history`, continue |
@@ -384,7 +436,7 @@ grep "\[\[" vault/Companies/MOC-Vendors.md
 
 ## Learned Patterns
 
-- **Calendar → email:** double-click event → Tracking panel → click name → email visible immediately in contact card
+- **Calendar → email:** click event → Tracking panel → click name → email visible in contact card text
 - **Signature location:** bottom of email body after `Best,` or `—` separator
 - **Calendar invites have no signature** — detect by subject prefix or Zoom/Teams-only body
 - **palantir.com pattern:** `{first_initial}{last}@palantir.com`
