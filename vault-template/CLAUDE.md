@@ -43,6 +43,7 @@ Skills are invoked with `/skill-name` or automatically by Claude when relevant.
 | `learnings` | `/learnings` | Sync session work from any project to vault |
 | `calendar-sync` | (auto) | Sync macOS calendar to daily note, create meeting notes, time-block the day |
 | `contacts` | `/contacts` | Enrich external contacts — email, signature, company research, vault notes |
+| `gtiorg` | `/gtiorg` | Crawl GTI org chart from Teams, gap-detect missing people from daily notes |
 | `upgrade` | `/upgrade` | Update to latest version, preserving your content |
 | `goal-tracking` | (auto) | Track progress across goal cascade with project awareness |
 | `obsidian-vault-ops` | (auto) | Read/write vault files, manage wiki-links |
