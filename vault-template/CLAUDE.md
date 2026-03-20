@@ -12,9 +12,15 @@
 | `Daily Notes/` | Daily journal entries (`YYYY-MM-DD.md`) |
 | `Goals/` | Goal cascade (3-year → yearly → monthly → weekly) |
 | `Projects/` | Active projects with their own `CLAUDE.md` |
+| `People/` | People notes, org charts, people groupings (flat) |
+| `Companies/` | Company notes, vendor hubs like `MOC-Vendors.md` (flat) |
+| `Concepts/` | Ideas, frameworks, tools (flat) |
+| `Topics/` | Catch-all for work references and other knowledge notes (flat) |
 | `Templates/` | Reusable note structures |
 | `Archives/` | Completed/inactive content |
 | `Inbox/` | Uncategorized captures (optional) |
+
+**MOC convention:** Hub/index notes use `MOC-{Name}.md` prefix (e.g., `Companies/MOC-Vendors.md`).
 
 ## Current Focus
 

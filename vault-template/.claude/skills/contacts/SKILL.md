@@ -1,6 +1,6 @@
 ---
 name: contacts
-description: Enrich external contacts from calendar meetings — scan daily notes for unprocessed externals, get emails via Outlook Calendar, extract signatures from Outlook Mail, research companies, and create/update Vendors hub + company + contact notes. Defaults to 90-day lookback. Tracks processed dates in daily note frontmatter to avoid redundant work.
+description: Enrich external contacts from calendar meetings — scan daily notes for unprocessed externals, get emails via Outlook Calendar, extract signatures from Outlook Mail, research companies, and create/update MOC-Vendors hub + company + contact notes. Defaults to 90-day lookback. Tracks processed dates in daily note frontmatter to avoid redundant work.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, TodoWrite, WebSearch, WebFetch, mcp__Claude_in_Chrome__navigate, mcp__Claude_in_Chrome__tabs_context_mcp, mcp__Claude_in_Chrome__tabs_create_mcp, mcp__Claude_in_Chrome__computer, mcp__Claude_in_Chrome__get_page_text, mcp__Claude_in_Chrome__read_page, mcp__Claude_in_Chrome__find
 user-invocable: true
 ---
@@ -10,9 +10,9 @@ user-invocable: true
 Enriches external contacts found in Outlook Calendar meetings. Scans daily notes for `(external)` markers, skips dates already processed, hits Outlook only for new contacts, and writes vault notes.
 
 **Output:**
-- `Topics/Vendors.md` — hub of all external companies + contacts
-- `Topics/{Company}.md` — one per company, with contact list + meeting history
-- `Topics/{First Last}.md` — one per person, with full contact card
+- `Companies/MOC-Vendors.md` — hub of all external companies + contacts
+- `Companies/{Company}.md` — one per company, with contact list + meeting history
+- `People/{First Last}.md` — one per person, with full contact card
 - Updates daily note frontmatter: `contacts_extracted: YYYY-MM-DD`
 
 ## Usage
@@ -49,8 +49,8 @@ Scan daily notes to find dates with unprocessed external contacts. This phase is
 ### 1a. Migration check (first run only)
 
 Before scanning, check if this is the first ever run:
-- If `Topics/Vendors.md` exists → skill has run before, skip migration
-- If `Topics/Vendors.md` does NOT exist → first run: perform migration (see below)
+- If `Companies/MOC-Vendors.md` exists → skill has run before, skip migration
+- If `Companies/MOC-Vendors.md` does NOT exist → first run: perform migration (see below)
 
 ### 1b. Scan daily notes in range
 
@@ -70,7 +70,7 @@ For each file:
    - Also capture the meeting row that line appears in (to know which meeting date/title to open in Outlook)
    - Add to work list: `{ date, contacts: [{ name, meeting_title }] }`
 3. **Cross-check against existing topic notes**
-   - For each name: check if `Topics/{Name}.md` exists AND has an email field
+   - For each name: check if `People/{Name}.md` exists AND has an email field
    - If yes → contact already enriched (likely from a previous manual run)
    - Mark date as: `needs_frontmatter_only` — just stamp frontmatter, skip browser
 
@@ -85,7 +85,7 @@ needs_frontmatter_only = [
   { date: "2026-01-12" },  # topics exist, just missing frontmatter marker
   ...
 ]
-new_contacts = ["Julia James"]  # no Topics/{Name}.md exists → needs full enrichment
+new_contacts = ["Julia James"]  # no People/{Name}.md exists → needs full enrichment
 ```
 
 **Report to user before continuing:**
@@ -96,14 +96,14 @@ new_contacts = ["Julia James"]  # no Topics/{Name}.md exists → needs full enri
 
 ---
 
-## Phase 1.5 — Migration (first run only, no Vendors.md exists)
+## Phase 1.5 — Migration (first run only, no MOC-Vendors.md exists)
 
 When running the skill for the first time against an existing vault:
 
 1. **Glob all daily notes ever** (not just 90 days)
 2. For each: grep for `(external)`
 3. For each name found with `(external)`:
-   - Check if `Topics/{Name}.md` exists with email populated
+   - Check if `People/{Name}.md` exists with email populated
    - If yes → this contact was manually enriched before the skill existed
    - Add date to `needs_frontmatter_only` list
    - Add contact to "already known" set (skip enrichment)
@@ -161,7 +161,7 @@ For each unique email domain:
 2. **Unknown domain:**
    - `WebFetch https://{domain}` → one-liner, industry, HQ
    - If blocked → `WebSearch "{domain} company about"`
-3. **Check** if `Topics/{Company}.md` exists → update rather than recreate
+3. **Check** if `Companies/{Company}.md` exists → update rather than recreate
 
 ---
 
@@ -169,7 +169,7 @@ For each unique email domain:
 
 Write in order: company notes → contact notes → Vendors hub.
 
-### 5a. Company Note — `Topics/{Company}.md`
+### 5a. Company Note — `Companies/{Company}.md`
 
 Check existence first. If exists, append new contacts + meetings only.
 
@@ -202,14 +202,14 @@ status: developing
 - [[YYYY-MM-DD]] — {meeting title}
 
 ## Related
-- [[Vendors]]
+- [[MOC-Vendors]]
 - [[GTI]]
 
 ---
 **Last updated:** YYYY-MM-DD
 ```
 
-### 5b. Contact Note — `Topics/{First Last}.md`
+### 5b. Contact Note — `People/{First Last}.md`
 
 Check existence first. If exists, update fields only if new data — **never overwrite `> blockquote`**.
 
@@ -241,14 +241,14 @@ company: "[[{Company}]]"
 
 ## Related
 - [[{Company}]]
-- [[Vendors]]
+- [[MOC-Vendors]]
 - {[[other contacts from same company]]}
 
 ---
 **Last updated:** YYYY-MM-DD
 ```
 
-### 5c. Vendors Hub — `Topics/Vendors.md`
+### 5c. Vendors Hub — `Companies/MOC-Vendors.md`
 
 Create if missing. If exists, append new company section only — never modify existing `> blockquotes`.
 
@@ -259,10 +259,10 @@ tags: [topic, work]
 status: developing
 ---
 
-# Vendors
+# MOC-Vendors
 
 ## Core Idea
-External companies and contacts [[GTI]] works with. Each company has its own topic note.
+External companies and contacts [[GTI]] works with. Each company has its own note in Companies/.
 
 ## Companies
 
@@ -279,6 +279,8 @@ External companies and contacts [[GTI]] works with. Each company has its own top
 ---
 **Last updated:** YYYY-MM-DD
 ```
+
+**Note:** `[[GTI-Orgchart]]` resolves to `People/GTI-Orgchart.md`.
 
 ---
 
@@ -318,10 +320,10 @@ This is the **idempotency marker** — next run of `/contacts` will skip this da
 grep -rl "{Name}" vault/Daily\ Notes/ | wc -l
 
 # Contact note links back to dates
-grep "\[\[YYYY-" vault/Topics/{Name}.md
+grep "\[\[YYYY-" vault/People/{Name}.md
 
 # Vendors hub links to all companies
-grep "\[\[" vault/Topics/Vendors.md
+grep "\[\[" vault/Companies/MOC-Vendors.md
 ```
 
 **Summary report:**
@@ -337,7 +339,7 @@ grep "\[\[" vault/Topics/Vendors.md
 - **Browser only when needed** — don't open Outlook for already-enriched contacts
 - **Signal is on the person, not the meeting** — `[[Name]] (external)` in the daily note is the source of truth; meeting titles with `[EXTERNAL]` are incidental (they appear only when the *organizer* is external; internal meetings can have external attendees too)
 - **`[EXTERNAL]` in meeting title ≠ the only place externals appear** — never use it as a filter in Outlook; use the work list from Phase 1
-- **FLAT Topics/** — no subfolders, ever
+- **FLAT within each folder** — People/, Companies/, Concepts/, Topics/ — no subfolders, ever
 - **[[wiki links]] for everything** — names, companies, dates, projects
 - **Never overwrite `> blockquotes`** — user-editable, always preserve
 - **`contacts_extracted` is sacred** — once set, only the user removes it to force a re-run
@@ -364,8 +366,8 @@ grep "\[\[" vault/Topics/Vendors.md
 ## Integration
 
 - **Feeds from** `/daily` — external attendees written as `[[Name]] (external)` in schedule table
-- **Reads** `Topics/GTI-Orgchart*.md` — cross-reference to confirm external status
-- **Writes** `Topics/Vendors.md`, `Topics/{Company}.md`, `Topics/{Name}.md`
+- **Reads** `People/GTI-Orgchart*.md` — cross-reference to confirm external status
+- **Writes** `Companies/MOC-Vendors.md`, `Companies/{Company}.md`, `People/{Name}.md`
 - **Marks** `Daily Notes/YYYY-MM-DD.md` frontmatter with `contacts_extracted`
 
 ---

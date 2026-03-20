@@ -7,13 +7,13 @@ user-invocable: true
 
 # GTI Org Chart Crawl Skill
 
-Crawls the [[GTI]] organizational hierarchy from Microsoft Teams Org Explorer. Produces a multi-page hub in `Topics/` with one page per department, sub-pages for large teams, and individual people notes. After crawling, cross-references daily notes to detect missing people.
+Crawls the [[GTI]] organizational hierarchy from Microsoft Teams Org Explorer. Produces a multi-page hub in `People/` with one page per department, sub-pages for large teams, and individual people notes. After crawling, cross-references daily notes to detect missing people.
 
 **Output:**
-- `Topics/GTI-Orgchart.md` — top-level hub with full org tree, department table, crawl stats
-- `Topics/GTI-Orgchart-{Department}.md` — one per major department
-- `Topics/GTI-Orgchart-{SubDept}.md` — sub-pages when a VP/Director subtree has headcount > 5
-- `Topics/{First Last}.md` — people notes for key individuals encountered
+- `People/GTI-Orgchart.md` — top-level hub with full org tree, department table, crawl stats
+- `People/GTI-Orgchart-{Department}.md` — one per major department
+- `People/GTI-Orgchart-{SubDept}.md` — sub-pages when a VP/Director subtree has headcount > 5
+- `People/{First Last}.md` — people notes for key individuals encountered
 - Gap detection report against daily notes
 
 ## Usage
@@ -57,7 +57,7 @@ https://outlook.office.com/host/1f8c20f5-d70f-4f8e-93e1-31d8fce0c8c9/096f3341-6e
 
 ### 0b. Read existing crawl state
 
-Read `Topics/GTI-Orgchart.md` frontmatter for:
+Read `People/GTI-Orgchart.md` frontmatter for:
 
 ```yaml
 last_crawled: 2026-03-17
@@ -184,7 +184,7 @@ function crawl(person, depth):
 ### 2c. Sub-page splitting
 
 After crawling a department, check each VP/Director subtree:
-- If a person's subtree has **headcount > 5** AND the department page would exceed ~80 people → create a sub-page `Topics/GTI-Orgchart-{SubDept}.md`
+- If a person's subtree has **headcount > 5** AND the department page would exceed ~80 people → create a sub-page `People/GTI-Orgchart-{SubDept}.md`
 - Link from department page: `→ [[GTI-Orgchart-{SubDept}]]`
 - Sub-page follows the same format as department pages
 
@@ -207,7 +207,7 @@ For each department, record:
 
 Write in order: department pages → sub-pages → hub → people notes.
 
-### 3a. Department Page — `Topics/GTI-Orgchart-{Department}.md`
+### 3a. Department Page — `People/GTI-Orgchart-{Department}.md`
 
 Check existence first. If exists, **replace** the `## Org Tree` and `## Stats` sections but preserve any `> blockquotes` or user-added sections.
 
@@ -245,7 +245,7 @@ status: developing
 
 **Org tree indentation:** 2 spaces per level. Use `- [[Name]] — Title` format. Wiki-link every person EXCEPT contractors without last names (e.g., `SK Rana — Contractor`).
 
-### 3b. Sub-Page — `Topics/GTI-Orgchart-{SubDept}.md`
+### 3b. Sub-Page — `People/GTI-Orgchart-{SubDept}.md`
 
 Same format as department page. Add cross-link to parent department page in Related section:
 ```markdown
@@ -255,7 +255,7 @@ Same format as department page. Add cross-link to parent department page in Rela
 - [[GTI]]
 ```
 
-### 3c. Hub Page — `Topics/GTI-Orgchart.md`
+### 3c. Hub Page — `People/GTI-Orgchart.md`
 
 Update the existing hub. Replace `## Org Tree`, `## Department Pages`, and `## Stats` sections. Preserve any user-added sections or `> blockquotes`.
 
@@ -298,9 +298,9 @@ Update the `Crawled` column with actual headcounts from this crawl.
 - **Last crawled:** YYYY-MM-DD
 ```
 
-### 3d. People Notes — `Topics/{First Last}.md`
+### 3d. People Notes — `People/{First Last}.md`
 
-Create a people note for anyone who is a **Director or above** (VP, SVP, EVP, Director, Senior Director, C-suite, President, General Counsel) and does NOT already have a `Topics/{First Last}.md` file.
+Create a people note for anyone who is a **Director or above** (VP, SVP, EVP, Director, Senior Director, C-suite, President, General Counsel) and does NOT already have a `People/{First Last}.md` file.
 
 **Do not overwrite existing people notes.** If the file exists, only update title/role if it has changed.
 
@@ -342,7 +342,7 @@ company: "[[GTI]]"
 When invoked as `/gtiorg --person "Rich Freeman"`:
 
 1. **Locate the person** in existing orgchart pages
-   - Grep all `Topics/GTI-Orgchart*.md` for the name
+   - Grep all `People/GTI-Orgchart*.md` for the name
    - Determine which department page they're on
    - Record their current entry (title, manager, depth)
 
@@ -374,14 +374,14 @@ Run after every crawl, or standalone with `--gaps-only`.
 ### 5a. Build the org chart name set
 
 ```
-Glob Topics/GTI-Orgchart*.md
+Glob People/GTI-Orgchart*.md
 Read each → extract all [[Name]] wiki-links from Org Tree sections
 → Set<string> orgchart_names
 ```
 
 Also check root-level people notes that reference GTI:
 ```
-Grep Topics/*.md for company: "[[GTI]]"
+Grep People/*.md for company: "[[GTI]]"
 → add those names to known_gti_people set
 ```
 
@@ -405,7 +405,7 @@ missing = daily_note_names - orgchart_names - known_gti_people
 
 ### 5d. Check legacy people notes
 
-Some people have root-level vault notes that predate the orgchart skill (e.g., `Topics/Brad Asher.md`, `Topics/Rich Freeman.md`). Cross-reference:
+Some people have vault notes that predate the orgchart skill (e.g., `People/Brad Asher.md`, `People/Rich Freeman.md`). Cross-reference:
 - If a person is in `orgchart_names` but also has a standalone note → no action needed (the orgchart page and people note coexist)
 - If a person has a standalone note but is NOT in `orgchart_names` → flag: "May be a GTI employee not yet in org chart"
 
@@ -442,7 +442,7 @@ People found in daily notes but not in any GTI-Orgchart page:
 - **"Dan Fleury"** (daily note) → **"Daniel Fleury"** (orgchart) — nickname match
 
 ### Legacy Notes Without Org Chart Entry
-- [[Brad Asher]] — has Topics/ note, not in any GTI-Orgchart page
+- [[Brad Asher]] — has People/ note, not in any GTI-Orgchart page
 ```
 
 **Ask user:** "Want me to add any of the missing people to the org chart? I can search for them in Org Explorer."
@@ -498,7 +498,7 @@ If user confirms names → run targeted crawl (Phase 4) for each.
 
 ## Key Rules
 
-- **FLAT Topics/** — no subfolders, ever
+- **FLAT within each folder** — People/, Companies/, Concepts/, Topics/ — no subfolders, ever
 - **[[wiki links]] for every person** — `[[First Last]]` format
 - **Contractors without clear names** — plain text, no wiki link (e.g., `SK Rana — Contractor`)
 - **Never overwrite `> blockquotes`** — user-editable content, always preserve
@@ -514,8 +514,8 @@ If user confirms names → run targeted crawl (Phase 4) for each.
 
 - **Feeds into** `/contacts` — org chart cross-reference confirms internal vs external
 - **Reads** `Daily Notes/*.md` — gap detection scans for [[Name]] patterns
-- **Reads** `Topics/*.md` — checks for legacy people notes
-- **Writes** `Topics/GTI-Orgchart*.md`, `Topics/{First Last}.md`
+- **Reads** `People/*.md` — checks for legacy people notes
+- **Writes** `People/GTI-Orgchart*.md`, `People/{First Last}.md`
 
 ---
 
